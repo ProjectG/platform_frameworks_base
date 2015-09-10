@@ -336,7 +336,9 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
                 mAutomaticBrightnessController = new AutomaticBrightnessController(mContext, this,
                         handler.getLooper(), sensorManager, screenAutoBrightnessSpline,
                         lightSensorWarmUpTimeConfig, screenBrightnessRangeMinimum,
-                        mScreenBrightnessRangeMaximum, dozeScaleFactor, mLiveDisplayController);
+                        mScreenBrightnessRangeMaximum, dozeScaleFactor, lightSensorRate,
+                        brighteningLightDebounce, darkeningLightDebounce,
+                        autoBrightnessResetAmbientLuxAfterWarmUp);
             }
         }
 
@@ -686,9 +688,6 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
                 animateScreenBrightness(brightness, 0);
             }
         }
-
-        // Update LiveDisplay now
-        mLiveDisplayController.updateLiveDisplay();
 
         // Determine whether the display is ready for use in the newly requested state.
         // Note that we do not wait for the brightness ramp animation to complete before
@@ -1111,8 +1110,6 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
         if (mAutomaticBrightnessController != null) {
             mAutomaticBrightnessController.dump(pw);
         }
-
-        mLiveDisplayController.dump(pw);
     }
 
     private static String proximityToString(int state) {
@@ -1159,10 +1156,6 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
 
     private static int clampAbsoluteBrightness(int value) {
         return MathUtils.constrain(value, PowerManager.BRIGHTNESS_OFF, PowerManager.BRIGHTNESS_ON);
-    }
-
-    void systemReady() {
-        mLiveDisplayController.systemReady();
     }
 
     private final class DisplayControllerHandler extends Handler {
