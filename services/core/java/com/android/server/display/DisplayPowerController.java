@@ -646,6 +646,10 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
             brightness = mScreenBrightnessDozeConfig;
             mLights.getLight(LightsManager.LIGHT_ID_BUTTONS).setBrightness(PowerManager.BRIGHTNESS_OFF);
         }
+        
+        // Disable button lights when dozing
+        if (state == Display.STATE_DOZE || state == Display.STATE_DOZE_SUSPEND) {
+            mLights.getLight(LightsManager.LIGHT_ID_BUTTONS).setBrightness(PowerManager.BRIGHTNESS_OFF);
 
         // Apply manual brightness.
         // Use the current brightness setting from the request, which is expected
