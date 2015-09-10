@@ -1516,7 +1516,7 @@ public final class PowerManagerService extends SystemService
         }
     }
 
-    /**
+  /**
      * Updates the value of mUserActivitySummary to summarize the user requested
      * state of the system such as whether the screen should be bright or dim.
      * Note that user activity is ignored when the system is asleep.
@@ -1542,16 +1542,30 @@ public final class PowerManagerService extends SystemService
                     nextTimeout = mLastUserActivityTime
                             + screenOffTimeout - screenDimDuration;
                     if (now < nextTimeout) {
-                        if (now > mLastUserActivityTime + BUTTON_ON_DURATION) {
-                            mButtonsLight.setBrightness(0);
+                        int buttonBrightness, keyboardBrightness;
+                        if (mButtonBrightnessOverrideFromWindowManager >= 0) {
+                            buttonBrightness = mButtonBrightnessOverrideFromWindowManager;
+                            keyboardBrightness = mButtonBrightnessOverrideFromWindowManager;
                         } else {
-                            mButtonsLight.setBrightness(mDisplayPowerRequest.screenBrightness);
-                            nextTimeout = now + BUTTON_ON_DURATION;
+                            buttonBrightness = mButtonBrightness;
+                            keyboardBrightness = mKeyboardBrightness;
+                        }
+
+                        mKeyboardLight.setBrightness(mKeyboardVisible ? keyboardBrightness : 0);
+                        if (mButtonTimeout != 0 && now > mLastUserActivityTime + mButtonTimeout) {
+                             mButtonsLight.setBrightness(0);
+                        } else {
+                            mButtonsLight.setBrightness(buttonBrightness);
+                            if (buttonBrightness != 0 && mButtonTimeout != 0) {
+                                nextTimeout = now + mButtonTimeout;
+                            }
                         }
                         mUserActivitySummary = USER_ACTIVITY_SCREEN_BRIGHT;
                     } else {
                         nextTimeout = mLastUserActivityTime + screenOffTimeout;
                         if (now < nextTimeout) {
+                            mButtonsLight.setBrightness(0);
+                            mKeyboardLight.setBrightness(0);
                             mUserActivitySummary = USER_ACTIVITY_SCREEN_DIM;
                         }
                     }
@@ -1599,6 +1613,7 @@ public final class PowerManagerService extends SystemService
             }
         }
     }
+
 
     /**
      * Called when a user activity timeout has occurred.
