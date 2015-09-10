@@ -245,9 +245,6 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
     // The controller for the automatic brightness level.
     private AutomaticBrightnessController mAutomaticBrightnessController;
 
-    // The controller for LiveDisplay
-    private final LiveDisplayController mLiveDisplayController;
-
     // Animators.
     private ObjectAnimator mColorFadeOnAnimator;
     private ObjectAnimator mColorFadeOffAnimator;
@@ -268,8 +265,6 @@ final class DisplayPowerController implements AutomaticBrightnessController.Call
         mWindowManagerPolicy = LocalServices.getService(WindowManagerPolicy.class);
         mBlanker = blanker;
         mContext = context;
-
-        mLiveDisplayController = new LiveDisplayController(context, handler.getLooper());
 
         final Resources resources = context.getResources();
         final int screenBrightnessSettingMinimum = clampAbsoluteBrightness(resources.getInteger(
